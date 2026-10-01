@@ -21,7 +21,7 @@ class GroqProvider(BaseLLMProvider):
     Requires: GROQ_API_KEY in .env
     """
 
-    def __init__(self, api_key: str, model: str = "llama-3.1-8b-instant", timeout: int = 15) -> None:
+    def __init__(self, api_key: str, model: str = "openai/gpt-oss-20b", timeout: int = 15) -> None:
         self._api_key = api_key
         self._model_name = model
         self._timeout = timeout
@@ -74,7 +74,7 @@ class GroqProvider(BaseLLMProvider):
             resp = client.chat.completions.create(
                 model=self._model_name,
                 messages=[{"role": "user", "content": "Reply with the word OK"}],
-                max_tokens=5,
+                max_tokens=50,
             )
             return bool(resp.choices[0].message.content)
         except Exception as exc:

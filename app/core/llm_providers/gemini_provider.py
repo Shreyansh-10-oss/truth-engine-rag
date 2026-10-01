@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 class GeminiProvider(BaseLLMProvider):
 
-    def __init__(self, api_key: str, model: str = "gemini-1.5-flash", timeout: int = 15) -> None:
+    def __init__(self, api_key: str, model: str = "gemini-2.5-flash-lite", timeout: int = 15) -> None:
         self._api_key = api_key
         self._model_name = model
         self._timeout = timeout
@@ -32,9 +32,8 @@ class GeminiProvider(BaseLLMProvider):
     def _get_client(self):
         if self._client is None:
             try:
-                import google.generativeai as genai
-                genai.configure(api_key=self._api_key)
-                self._client = genai.GenerativeModel(self._model_name)
+                from google import genai
+                self._client = genai.Client(api_key=self._api_key)
             except Exception as exc:
                 raise LLMProviderUnavailableError(self.provider_name, f"Client init failed: {exc}") from exc
         return self._client
@@ -46,7 +45,8 @@ class GeminiProvider(BaseLLMProvider):
 
         def _call():
             try:
-                result["response"] = client.generate_content(full_prompt)
+                result["response"] = client.models.generate_content(model=self._model_name,
+    contents=full_prompt)
             except Exception as exc:
                 result["error"] = exc
 
@@ -74,7 +74,7 @@ class GeminiProvider(BaseLLMProvider):
     def health_check(self) -> bool:
         try:
             client = self._get_client()
-            resp = client.generate_content("Reply with the single word: OK")
+            resp = client.models.generate_content(model=self._model_name,contents="Reply with the single word: OK")
             return bool(resp.text)
         except Exception as exc:
             logger.warning("Gemini health check failed: %s", exc)

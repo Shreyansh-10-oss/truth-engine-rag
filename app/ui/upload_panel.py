@@ -7,10 +7,11 @@ No business logic — UI only.
 
 import streamlit as st
 import requests
+import os
 
 from app.ui import state_manager as sm
 
-API_BASE = "http://localhost:8000"
+API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000")
 
 SUPPORTED_TYPES = ["pdf", "json", "csv", "md", "txt"]
 
